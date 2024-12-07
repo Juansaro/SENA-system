@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+{% load static %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <!--<link rel="stylesheet" href="{% static 'usuarios/css/bootstrap.min.css' %}">-->
+    <!-- Font awesome CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous"></link>
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <!--<link rel="stylesheet" href="{% static 'usuarios/fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">-->
+    <!-- CSS porpios 
+    <link rel="stylesheet" href="{% static 'usuarios/css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/css/central_.css' %}">-->
+    {% block extrastyles %}{% endblock %}
+
+</head>
+
+<body>
+    {% load static %}
+    <div class="d-flex" id="wrapper">
+        <div class="bg-dark shadow-lg" id="sidebar-wrapper">
+            <!-- {% include "usuarios/_sidebar.html" %}-->
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <!--Navbar-->
+            <!--{% include "usuarios/_navbar.html" %} -->
+            <!--Aqui se puede añadir elementos-->
+            {% block content %}{% endblock content %}
+        </div>
+
+    </div>
+    {% include "usuarios/_footer.html" %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- <script src="{% static 'usuarios/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'usuarios/js/popper.min.js' %}"></script>
+    <script src="{% static 'usuarios/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'usuarios/js/sidebar.js' %}"></script>
+    <script src="{% static 'usuarios/js/accionesMenu.js' %}"></script>
+    JS de modales
+    <script src="{% static 'usuarios/js/jquery.bootstrap.modal.forms.js' %}"></script>
+    <!--Mas scripts-->
+    {% block extrascripts %}{% endblock extrascripts %}
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    </script>
+</body>
+
+</html>
