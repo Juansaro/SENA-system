@@ -1,72 +1,141 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
-
-
+# Modelos de Usuario
 class Usuario(AbstractUser):
-    es_administrador = models.BooleanField(default=False)
-    es_coordinador = models.BooleanField(default=False)
-    es_aprendiz = models.BooleanField(default=False)
-    es_asesor = models.BooleanField(default=False)
+    rol = models.CharField(
+        max_length=20,
+        choices=[
+            ('administrador', 'Administrador'),
+            ('coordinador', 'Coordinador'),
+            ('asesor', 'Asesor'),
+            ('aprendiz', 'Aprendiz'),
+        ],
+        default='aprendiz',
+    )
     es_valido = models.BooleanField(default=False)
+    view_sensitive_data = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'usuario'
 
-
-    def get_administrador_profile(self):
-        perfil_administrador = None
-        if hasattr(self, 'perfiladministrador'):
-            perfil_administrador = self.perfiladministrador
-        return perfil_administrador
-
-
-    def get_coordinador_profile(self):
-        perfil_coordinador = None
-        if hasattr(self, 'perfilcoordinador'):
-            perfil_coordinador = self.perfilcoordinador
-        return perfil_coordinador
+    def clean(self):
+        if self.rol not in dict(self.rol.choices).keys():
+            raise ValidationError(f"El rol '{self.rol}' no es válido.")
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            grupo = Group.objects.get(name='perfilnormal')
+            if grupo:
+                self.groups.add(grupo)
+        super().save(*args, **kwargs)
 
 
-    def get_asesor_profile(self):
-        perfil_asesor = None
-        if hasattr(self, 'perfilasesor'):
-            perfil_asesor = self.perfilasesor
-        return perfil_asesor
-
-
-    def get_aprendiz_profile(self):
-        perfil_aprendiz = None
-        if hasattr(self, 'perfilaprendiz'):
-            perfil_aprendiz = self.perfil_aprendiz
-        return perfil_aprendiz
-
-    # def save(self,*args,**kwargs):
-    #     if not self.id:
-    #         super().save(*args,**kwargs)
-    #         grupo = Group.objects.get(name = 'perfilnormal')
-    #         if grupo:
-    #             self.groups.add(grupo)
-    #         super().save(*args,**kwargs)
-
-
-class UsuarioAdministrador(models.Model):
+class Administrador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = 'administrador'
 
-class UsuarioCoordinador(models.Model):
+
+class Coordinador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = 'coordinador'
 
-class UsuarioAsesor(models.Model):
+
+class Asesor(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = 'asesor'
 
-class UsuarioAprendiz(models.Model):
+
+class Aprendiz(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    estado_etapa_lectiva = models.BooleanField(default=False)
+    curso = models.ForeignKey('Curso', on_delete=models.PROTECT, related_name='aprendices')
+    ficha = models.ForeignKey('Ficha', on_delete=models.PROTECT, related_name='aprendices')
+
+    class Meta:
+        db_table = 'aprendiz'
 
 
+# Modelos de Cursos y Fichas
+class Curso(models.Model):
+    nombre = models.CharField(max_length=255, unique=True)
+    descripcion = models.TextField(null=True, blank=True)
+    creado_por = models.ForeignKey(Coordinador, on_delete=models.PROTECT, related_name='cursos_creados')
 
+    class Meta:
+        db_table = 'curso'
+
+
+class Ficha(models.Model):
+    numero = models.CharField(max_length=50, unique=True)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='fichas')
+    asesor = models.ForeignKey(Asesor, on_delete=models.SET_NULL, null=True, blank=True, related_name='fichas_asignadas')
+    creado_por = models.ForeignKey(Coordinador, on_delete=models.PROTECT, related_name='fichas_creadas')
+
+    class Meta:
+        db_table = 'ficha'
+
+
+# Modelo de Documento
+class Documento(models.Model):
+    aprendiz = models.ForeignKey(Aprendiz, on_delete=models.CASCADE, related_name='documentos')
+    ficha = models.ForeignKey(Ficha, on_delete=models.CASCADE, related_name='documentos', null=True, blank=True)
+    nombre = models.CharField(max_length=255)
+    archivo = models.FileField(upload_to='documentos/')
+    tipo_documento = models.CharField(
+        max_length=50,
+        choices=[
+            ('identificacion', 'Identificación'),
+            ('certificado', 'Certificado'),
+            ('otro', 'Otro'),
+        ]
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ('pendiente', 'Pendiente'),
+            ('aprobado', 'Aprobado'),
+            ('rechazado', 'Rechazado'),
+        ],
+        default='pendiente',
+    )
+    motivo_rechazo = models.TextField(null=True, blank=True)
+    creado_por = models.ForeignKey(Usuario, on_delete=models.PROTECT, related_name='documentos_creados')
+    modificado_por = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='documentos_modificados')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'documento'
+
+    def clean(self):
+        if not self.archivo.name.endswith(('.pdf', '.jpg', '.png')):
+            raise ValidationError('El archivo debe ser de tipo PDF o imagen.')
+
+
+# Modelo para Gestión de Documentos
+class GestionDocumento(models.Model):
+    documento = models.OneToOneField(Documento, on_delete=models.CASCADE)
+    aprobado_por = models.ForeignKey(Asesor, on_delete=models.PROTECT, null=True, blank=True, related_name='documentos_aprobados')
+    rechazado_por = models.ForeignKey(Asesor, on_delete=models.PROTECT, null=True, blank=True, related_name='documentos_rechazados')
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ('pendiente', 'Pendiente'),
+            ('aprobado', 'Aprobado'),
+            ('rechazado', 'Rechazado'),
+        ],
+        default='pendiente',
+    )
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True)
+    fecha_rechazo = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'gestion_documento'
