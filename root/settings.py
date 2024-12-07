@@ -48,14 +48,8 @@ INSTALLED_APPS = [
 
     #Propios
     'apps.usuarios',
-    #'ciclo_phva',
-    #'covid19',
-    #'gestion_ambiental',
-    #'crispy_forms',
-    #'bootstrap_modal_forms',
-    #'widget_tweaks',
-    #"verify_email.apps.VerifyEmailConfig",
-    #'storages',
+    'apps.cursos',
+    'apps.documentos'
 ]
 
 MIDDLEWARE = [
