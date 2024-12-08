@@ -63,7 +63,6 @@ class Aprendiz(models.Model):
         db_table = 'aprendiz'
 
 
-# Modelos de Cursos y Fichas
 class Curso(models.Model):
     nombre = models.CharField(max_length=255, unique=True)
     descripcion = models.TextField(null=True, blank=True)
