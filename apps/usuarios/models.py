@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
-# Modelos de Usuario
+
 class Usuario(AbstractUser):
     rol = models.CharField(
         max_length=20,
@@ -24,13 +24,6 @@ class Usuario(AbstractUser):
     def clean(self):
         if self.rol not in dict(self.rol.choices).keys():
             raise ValidationError(f"El rol '{self.rol}' no es válido.")
-    
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            grupo = Group.objects.get(name='perfilnormal')
-            if grupo:
-                self.groups.add(grupo)
-        super().save(*args, **kwargs)
 
 
 class Administrador(models.Model):
@@ -82,7 +75,6 @@ class Ficha(models.Model):
         db_table = 'ficha'
 
 
-# Modelo de Documento
 class Documento(models.Model):
     aprendiz = models.ForeignKey(Aprendiz, on_delete=models.CASCADE, related_name='documentos')
     ficha = models.ForeignKey(Ficha, on_delete=models.CASCADE, related_name='documentos', null=True, blank=True)
@@ -119,7 +111,6 @@ class Documento(models.Model):
             raise ValidationError('El archivo debe ser de tipo PDF o imagen.')
 
 
-# Modelo para Gestión de Documentos
 class GestionDocumento(models.Model):
     documento = models.OneToOneField(Documento, on_delete=models.CASCADE)
     aprobado_por = models.ForeignKey(Asesor, on_delete=models.PROTECT, null=True, blank=True, related_name='documentos_aprobados')

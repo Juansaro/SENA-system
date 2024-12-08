@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponse
 from .forms import CustomLoginForm
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -24,6 +24,7 @@ def login_view(request):
     return render(request, 'auth/login.html', {'form': form})
 
 
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -31,29 +32,35 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
-    if request.user.groups.filter(name='coordinador').exists():
+    if request.user.rol == 'coordinador':
         return redirect('coordinador_dashboard')
-    elif request.user.groups.filter(name='asesor').exists():
+    elif request.user.rol == 'asesor':
         return redirect('asesor_dashboard')
-    elif request.user.groups.filter(name='aprendiz').exists():
+    elif request.user.rol == 'aprendiz':
         return redirect('aprendiz_dashboard')
     else:
         return HttpResponse("No tienes un rol asignado.", status=403)
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name='coordinador').exists())
 def coordinador_dashboard(request):
-    return render(request, 'dashboards/coordinador_dashboard.html', {'user': request.user})
+    if request.user.rol == 'coordinador':
+        return render(request, 'dashboards/coordinador_dashboard.html', {'user': request.user})
+    else:
+        return HttpResponse("Acceso denegado.", status=403)
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name='asesor').exists())
 def asesor_dashboard(request):
-    return render(request, 'dashboards/asesor_dashboard.html', {'user': request.user})
+    if request.user.rol == 'asesor':
+        return render(request, 'dashboards/asesor_dashboard.html', {'user': request.user})
+    else:
+        return HttpResponse("Acceso denegado.", status=403)
 
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name='aprendiz').exists())
 def aprendiz_dashboard(request):
-    return render(request, 'dashboards/aprendiz_dashboard.html', {'user': request.user})
+    if request.user.rol == 'aprendiz':
+        return render(request, 'dashboards/aprendiz_dashboard.html', {'user': request.user})
+    else:
+        return HttpResponse("Acceso denegado.", status=403)
