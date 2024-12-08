@@ -83,9 +83,9 @@ class Documento(models.Model):
     tipo_documento = models.CharField(
         max_length=50,
         choices=[
-            ('identificacion', 'Identificación'),
-            ('certificado', 'Certificado'),
-            ('otro', 'Otro'),
+            ('cedula', 'Cedula'),
+            ('CedulaExtranjeria', 'CedulaExtranjeria'),
+            ('Pasaporte', 'Pasaporte'),
         ]
     )
     estado = models.CharField(
