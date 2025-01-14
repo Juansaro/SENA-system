@@ -28,5 +28,10 @@ urlpatterns = [
     path('asesor/dashboard/', asesor_dashboard, name='asesor_dashboard'),
     path('aprendiz/dashboard/', aprendiz_dashboard, name='aprendiz_dashboard'),
     # path('verification/', include('verify_email')),
+
+    #procesar excel
+    #path('procesar_excel/', views.procesar_excel, name='procesar_excel'),
+    #path('cargar-usuarios/', views.cargar_usuarios, name='cargar_usuarios'),
+    path('cargar-aprendices/', views.cargar_aprendices, name='cargar_aprendices'),
 ]
 

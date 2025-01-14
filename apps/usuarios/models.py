@@ -48,12 +48,28 @@ class Asesor(models.Model):
 
 
 class Aprendiz(models.Model):
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    curso = models.ForeignKey('Curso', on_delete=models.PROTECT, related_name='aprendices')
-    ficha = models.ForeignKey('Ficha', on_delete=models.PROTECT, related_name='aprendices')
+    nombre = models.CharField(max_length=255)
+    apellido = models.CharField(max_length=255)
+    correo = models.EmailField(unique=True)
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ('nuevo', 'Nuevo'),
+            ('informado', 'Informado'),
+            ('registrado', 'Registrado'),
+        ],
+        default='nuevo'
+    )
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_informado = models.DateTimeField(null=True, blank=True)
 
-    class Meta:
-        db_table = 'aprendiz'
+    def __str__(self):
+        return f"{self.nombre} {self.apellido} - {self.correo}"
+
+    def clean(self):
+        #validar que  el correo que si este en lista blanca
+        if not self.correo.endswith('@sena.edu.co'):
+            raise ValidationError("El correo no está en la lista blanca.")
 
 
 class Curso(models.Model):

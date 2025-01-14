@@ -1,1 +1,3 @@
 /venv/*
+django_debug.log
+.vscode/

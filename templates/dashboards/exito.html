@@ -1,0 +1,15 @@
+{% extends "../base.html" %}
+{% load static %}
+
+<p>Consulta tus opciones de etapa productiva y sube tus documentos aquí.</p>
+
+<!-- aprendices/templates/upload_excel.html -->
+{% block content %}
+<h3>{{ mensaje }}</h3>
+<a href="{% url 'usuarios:cargar_aprendices' %}">Volver al Dashboard</a>
+{% endblock %}
+
+
+
+{% include "auth/logout.html" %}
+

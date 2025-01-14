@@ -3,5 +3,25 @@
 
 <p>Consulta tus opciones de etapa productiva y sube tus documentos aquí.</p>
 
+<!-- aprendices/templates/upload_excel.html -->
+{% block content %}
+    <!-- Formulario para cargar aprendices desde un archivo Excel -->
+    <!-- Formulario para cargar aprendices desde un archivo Excel -->
+    <h3>Cargar Aprendices</h3>
+
+    <!-- Formulario para cargar aprendices desde un archivo Excel -->
+    <h3>Cargar Aprendices</h3>
+    <form method="post" enctype="multipart/form-data" action="{% url 'cargar_aprendices' %}">
+        {% csrf_token %}
+        <label for="file">Seleccionar archivo .xlsx:</label>
+        <input type="file" name="file" accept=".xlsx">
+        <button type="submit">Cargar</button>
+    </form>
+
+
+{% endblock %}
+
+
+
 {% include "auth/logout.html" %}
 

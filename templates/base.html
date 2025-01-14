@@ -13,19 +13,6 @@
     <div class="dashboard-container">
         <h1>Bienvenido, {{ user.username }} {{ user.last_name }}</h1>
 
-        <p>Rol: {{ user.rol }}</p>
-
-        <nav>
-            <ul>
-                {% if rol == 'Coordinador' %}
-                    <li><a href="{% url 'coordinador_dashboard' %}">Dashboard Coordinador</a></li>
-                {% elif rol == 'Asesor' %}
-                    <li><a href="{% url 'asesor_dashboard' %}">Dashboard Asesor</a></li>
-                {% elif rol == 'Aprendiz' %}
-                    <li><a href="{% url 'aprendiz_dashboard' %}">Dashboard Aprendiz</a></li>
-                {% endif %}
-            </ul>
-        </nav>
 
         <div class="d-flex" id="wrapper">
             <div class="bg-dark shadow-lg" id="sidebar-wrapper">
@@ -37,8 +24,10 @@
                 <!--Navbar-->
                 <!--Aqui se puede añadir elementos-->
                 {% block content %}{% endblock content %}
-                <p>Contenido</p>
+                
             </div>
+
+
 
         </div>
 
